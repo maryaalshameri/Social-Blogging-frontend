@@ -163,52 +163,53 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
               <!-- Like Button -->
-              <button 
-                @click="toggleLike"
-                :disabled="likeLoading"
-                class="group flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-105"
-                :class="[
-                  isLiked 
-                    ? 'bg-red-500/20 text-red-600 dark:text-red-400 shadow-lg shadow-red-500/20' 
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400',
-                  likeLoading ? 'opacity-50 cursor-not-allowed' : ''
-                ]"
-              >
-                <svg v-if="isLiked" class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                </svg>
-                <svg v-else class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                </svg>
-                <span class="font-semibold">{{ post.likesCount }}</span>
-              </button>
+ <button 
+  @click="toggleLike"
+  :disabled="likeLoading"
+  class="action-button group flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-105"
+  :class="[
+    isLiked 
+      ? 'bg-red-500/20 text-red-600 dark:text-red-400 shadow-lg shadow-red-500/20' 
+      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400',
+    likeLoading ? 'opacity-50 cursor-not-allowed' : ''
+  ]"
+>
+  <!-- أيقونة اللايك -->
+  <svg v-if="isLiked" class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
+    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+  </svg>
+  <svg v-else class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+  </svg>
+  <span class="font-semibold">{{ post.likesCount }}</span>
+</button>
 
               <!-- Share Button -->
-              <button 
-                @click="sharePost"
-                class="group flex items-center gap-3 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400"
-              >
-                <svg class="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-                </svg>
-                <span class="font-semibold">Share</span>
-              </button>
+<button 
+  @click="sharePost"
+  class="action-button group flex items-center gap-3 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400"
+>
+  <svg class="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+  </svg>
+  <span class="font-semibold">Share</span>
+</button>
             </div>
 
             <!-- Bookmark Button -->
-            <button 
-              @click="toggleBookmark"
-              class="group p-3 rounded-2xl transition-all duration-300 transform hover:scale-110"
-              :class="[
-                isBookmarked 
-                  ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400 shadow-lg shadow-blue-500/20' 
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400'
-              ]"
-            >
-              <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-              </svg>
-            </button>
+<button 
+  @click="toggleBookmark"
+  class="action-button group p-3 rounded-2xl transition-all duration-300 transform hover:scale-110"
+  :class="[
+    isBookmarked 
+      ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400 shadow-lg shadow-blue-500/20' 
+      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400'
+  ]"
+>
+  <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
+    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+  </svg>
+</button>
           </div>
         </div>
       </article>
@@ -493,11 +494,33 @@ export default {
 </script>
 
 <style scoped>
-/* إصلاح مشكلة الضغط على التصميم */
+/* منع انتشار تأثير hover على العناصر الكبيرة */
 .article-container {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+/* تأكد أن الأزرار مستقلة */
+.action-button {
+  position: relative;
+  z-index: 10;
+  isolation: isolate; /* عزل العنصر عن الخلفية */
+}
+
+/* إصلاح تأثيرات الـ hover */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+/* منع تأثير الضغط على العناصر الكبيرة عند hover على الأزرار */
+.prevent-squish {
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Custom Animations */
@@ -524,20 +547,5 @@ export default {
   .backdrop-blur-sm {
     backdrop-filter: blur(8px);
   }
-}
-
-/* تحسينات للأداء */
-.hover-lift {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hover-lift:hover {
-  transform: translateY(-4px);
-}
-
-/* منع تأثير الضغط على العناصر الكبيرة */
-.prevent-squish {
-  transform: translateZ(0);
-  will-change: transform;
 }
 </style>
