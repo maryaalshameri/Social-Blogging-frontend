@@ -43,7 +43,7 @@
                 ? 'from-blue-400 via-purple-400 to-indigo-300' 
                 : 'from-blue-600 via-purple-600 to-indigo-700'
             ]">
-              BlogHub
+              MaryBlog
             </span>
             <span class="text-xs text-gray-500 dark:text-gray-400 -mt-1 hidden lg:block">
               Share Your Story

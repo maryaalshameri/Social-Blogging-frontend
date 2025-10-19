@@ -1,7 +1,7 @@
 <template>
   <div class="fixed top-4 right-4 z-50 space-y-2 max-w-sm w-full">
     <div
-      v-for="notification in notifications"
+      v-for="notification in localNotifications"
       :key="notification.id"
       :class="[
         'p-4 rounded-lg shadow-lg border transform transition-all duration-300',
@@ -42,7 +42,7 @@
           </p>
         </div>
         <button
-          @click="removeNotification(notification.id)"
+          @click="removeLocalNotification(notification.id)"
           :class="[
             'ml-4 flex-shrink-0 rounded-full p-1 transition-colors',
             notification.type === 'success' 
@@ -59,50 +59,17 @@
           </svg>
         </button>
       </div>
-      <div class="mt-2 flex items-center space-x-4">
-        <button
-          v-if="notification.action"
-          @click="handleAction(notification)"
-          class="text-xs font-medium underline hover:no-underline transition-all"
-          :class="[
-            notification.type === 'success' 
-              ? 'text-green-600 dark:text-green-400'
-              : notification.type === 'error'
-              ? 'text-red-600 dark:text-red-400'
-              : notification.type === 'warning'
-              ? 'text-yellow-600 dark:text-yellow-400'
-              : 'text-blue-600 dark:text-blue-400'
-          ]"
-        >
-          View
-        </button>
-        <div class="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-1">
-          <div
-            class="h-1 rounded-full transition-all duration-300"
-            :class="[
-              notification.type === 'success' 
-                ? 'bg-green-500'
-                : notification.type === 'error'
-                ? 'bg-red-500'
-                : notification.type === 'warning'
-                ? 'bg-yellow-500'
-                : 'bg-blue-500'
-            ]"
-            :style="{ width: `${notification.progress}%` }"
-          ></div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex'
-
 export default {
   name: 'NotificationContainer',
-  computed: {
-    ...mapState('notifications', ['notifications'])
+  data() {
+    return {
+      localNotifications: []
+    }
   },
   mounted() {
     this.setupSocketListeners()
@@ -111,52 +78,49 @@ export default {
     this.cleanupSocketListeners()
   },
   methods: {
-    ...mapActions('notifications', ['addNotification', 'removeNotification']),
-    
     setupSocketListeners() {
-      // إصلاح: استخدام event.detail بشكل صحيح
-      window.addEventListener('socket-notification', (event) => {
-        if (event && event.detail) {
-          this.handleSocketNotification(event.detail)
-        }
-      })
+      window.addEventListener('socket-newNotification', this.handleNewNotification)
     },
     
     cleanupSocketListeners() {
-      window.removeEventListener('socket-notification', this.handleSocketNotification)
+      window.removeEventListener('socket-newNotification', this.handleNewNotification)
     },
     
-    handleSocketNotification(notificationData) {
-      // إصلاح: التأكد من أن notificationData موجود
-      if (!notificationData) return
-      
-      const notification = {
-        id: Date.now().toString(),
-        title: notificationData.title || 'Notification',
-        message: notificationData.message || '',
-        type: notificationData.type || 'info',
-        action: notificationData.action || null,
-        progress: 100,
-        duration: notificationData.duration || 5000
-      }
-      
-      this.addNotification(notification)
-      
-      // بدء العد التنازلي للتقدم
-      const interval = setInterval(() => {
-        notification.progress -= 1
-        if (notification.progress <= 0) {
-          clearInterval(interval)
-          this.removeNotification(notification.id)
+    handleNewNotification(event) {
+      if (event && event.detail) {
+        const notificationData = event.detail
+        
+        const notification = {
+          id: Date.now().toString(),
+          title: notificationData.title || 'Notification',
+          message: notificationData.message || '',
+          type: this.mapNotificationType(notificationData.type),
+          timestamp: notificationData.createdAt || new Date()
         }
-      }, notification.duration / 100)
+        
+        this.localNotifications.push(notification)
+        
+        // إزالة الإشعار تلقائياً بعد 5 ثواني
+        setTimeout(() => {
+          this.removeLocalNotification(notification.id)
+        }, 5000)
+      }
     },
     
-    handleAction(notification) {
-      if (notification.action && typeof notification.action === 'function') {
-        notification.action()
+    removeLocalNotification(id) {
+      this.localNotifications = this.localNotifications.filter(n => n.id !== id)
+    },
+    
+    mapNotificationType(socketType) {
+      const typeMap = {
+        'like': 'info',
+        'comment': 'info', 
+        'follow': 'info',
+        'system': 'warning',
+        'post_published': 'success',
+        'comment_reply': 'info'
       }
-      this.removeNotification(notification.id)
+      return typeMap[socketType] || 'info'
     }
   }
 }

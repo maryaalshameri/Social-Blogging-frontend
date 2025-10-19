@@ -80,7 +80,7 @@
           <div class="flex items-center gap-2">
             <button 
               v-if="canDeleteComment(comment)"
-              @click="deleteComment(comment._id)"
+              @click="openDeleteConfirm(comment)"
               class="p-2 text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-xl transition-all duration-300 transform hover:scale-110 hover:bg-red-500/10"
               :disabled="deletingCommentId === comment._id"
             >
@@ -146,6 +146,17 @@
         </div>
       </div>
     </div>
+
+    <!-- Confirm Dialog for Delete -->
+    <ConfirmDialog
+      :visible="showDeleteConfirm"
+      :title="deleteConfirmTitle"
+      :message="deleteConfirmMessage"
+      confirm-text="Delete"
+      type="danger"
+      @confirm="confirmDeleteComment"
+      @cancel="cancelDeleteComment"
+    />
   </div>
 </template>
 
@@ -153,9 +164,14 @@
 import { mapState } from 'vuex'
 import { likesAPI } from '@/services/api'
 import toastService from '@/services/ToastService'
+import socketService from '@/services/socket'
+import ConfirmDialog from '@/components/Common/ConfirmDialog.vue'
 
 export default {
   name: 'CommentList',
+  components: {
+    ConfirmDialog
+  },
   props: {
     comments: {
       type: Array,
@@ -172,7 +188,11 @@ export default {
       submitting: false,
       likingCommentId: null,
       deletingCommentId: null,
-      userCommentLikes: new Set() // لتتبع التعليقات التي أعجب بها المستخدم
+      userCommentLikes: new Set(),
+      showDeleteConfirm: false,
+      commentToDelete: null,
+      deleteConfirmTitle: 'Delete Comment',
+      deleteConfirmMessage: 'Are you sure you want to delete this comment? This action cannot be undone.'
     }
   },
   computed: {
@@ -182,7 +202,6 @@ export default {
     comments: {
       immediate: true,
       handler(newComments) {
-        // تحديث حالة الإعجاب للتعليقات عند تحميلها
         this.updateCommentLikesStatus(newComments)
       }
     }
@@ -212,12 +231,45 @@ export default {
       return this.user && (this.user._id === comment.author._id || this.user.role === 'admin')
     },
     updateCommentLikesStatus(comments) {
-      // هنا يمكنك إضافة API لتحميل حالة الإعجابات للمستخدم
-      // مؤقتاً، سنفترض أن المستخدم لم يعجب بأي تعليق
       comments.forEach(comment => {
         comment.isLiked = this.userCommentLikes.has(comment._id)
       })
     },
+    
+    // Delete Comment Methods
+    openDeleteConfirm(comment) {
+      this.commentToDelete = comment
+      this.showDeleteConfirm = true
+    },
+    
+    cancelDeleteComment() {
+      this.showDeleteConfirm = false
+      this.commentToDelete = null
+    },
+    
+    async confirmDeleteComment() {
+      if (!this.commentToDelete) return
+      
+      this.deletingCommentId = this.commentToDelete._id
+      this.showDeleteConfirm = false
+      
+      try {
+        // إرسال حدث Socket أولاً لإعلام جميع المستخدمين بحذف التعليق
+        socketService.deleteComment(this.commentToDelete._id, this.postId, this.user._id)
+        
+        // ثم إرسال طلب الحذف إلى الخادم
+        this.$emit('delete-comment', this.commentToDelete._id)
+        
+        toastService.success('Comment deleted successfully')
+      } catch (error) {
+        console.error('Error deleting comment:', error)
+        toastService.error('Failed to delete comment')
+      } finally {
+        this.deletingCommentId = null
+        this.commentToDelete = null
+      }
+    },
+
     async submitComment() {
       if (!this.commentContent.trim()) return
       
@@ -235,27 +287,28 @@ export default {
         this.submitting = false
       }
     },
+
     async toggleCommentLike(comment) {
       if (!this.isAuthenticated) {
         toastService.warning('Please login to like comments')
-        this.$router.push('/login')
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 500)
         return
       }
 
       this.likingCommentId = comment._id
       try {
         if (comment.isLiked) {
-          // إلغاء الإعجاب
+          socketService.unlikeComment(comment._id, this.user._id)
           await likesAPI.unlikeComment(comment._id)
           comment.isLiked = false
-          comment.likesCount = Math.max(0, (comment.likesCount || 0) - 1)
           this.userCommentLikes.delete(comment._id)
           toastService.success('Comment unliked')
         } else {
-          // إضافة إعجاب
+          socketService.likeComment(comment._id, this.user._id)
           await likesAPI.likeComment(comment._id)
           comment.isLiked = true
-          comment.likesCount = (comment.likesCount || 0) + 1
           this.userCommentLikes.add(comment._id)
           toastService.success('Comment liked! 💖')
         }
@@ -264,7 +317,7 @@ export default {
         const errorMessage = error.response?.data?.message || 'Failed to update like'
         
         if (errorMessage.includes('already liked')) {
-          // إذا كان المستخدم قد أعجب بالفعل، نقوم بإلغاء الإعجاب
+          socketService.unlikeComment(comment._id, this.user._id)
           await likesAPI.unlikeComment(comment._id)
           comment.isLiked = false
           comment.likesCount = Math.max(0, (comment.likesCount || 0) - 1)
@@ -277,19 +330,72 @@ export default {
         this.likingCommentId = null
       }
     },
-    async deleteComment(commentId) {
-      if (!confirm('Are you sure you want to delete this comment?')) return
-      
-      this.deletingCommentId = commentId
-      try {
-        this.$emit('delete-comment', commentId)
-      } catch (error) {
-        console.error('Error deleting comment:', error)
-        toastService.error('Failed to delete comment')
-      } finally {
-        this.deletingCommentId = null
+
+    setupSocketListeners() {
+      window.addEventListener('socket-commentAdded', this.handleNewComment);
+      window.addEventListener('socket-commentDeleted', this.handleDeletedComment);
+      window.addEventListener('socket-commentLiked', this.handleCommentLiked);
+      window.addEventListener('socket-commentUnliked', this.handleCommentUnliked);
+    },
+
+    removeSocketListeners() {
+      window.removeEventListener('socket-commentAdded', this.handleNewComment);
+      window.removeEventListener('socket-commentDeleted', this.handleDeletedComment);
+      window.removeEventListener('socket-commentLiked', this.handleCommentLiked);
+      window.removeEventListener('socket-commentUnliked', this.handleCommentUnliked);
+    },
+
+    handleCommentLiked(event) {
+      const { commentId, userId, likesCount } = event.detail
+      const comment = this.comments.find(c => c._id === commentId)
+      if (comment) {
+        comment.likesCount = likesCount
+        if (userId === this.user?._id) {
+          comment.isLiked = true
+        }
+      }
+    },
+
+    handleCommentUnliked(event) {
+      const { commentId, userId, likesCount } = event.detail
+      const comment = this.comments.find(c => c._id === commentId)
+      if (comment) {
+        comment.likesCount = likesCount
+        if (userId === this.user?._id) {
+          comment.isLiked = false
+        }
+      }
+    },
+
+  handleNewComment(event) {
+  const { postId, comment } = event.detail;
+  if (postId === this.postId) {
+    // تأكد من عدم وجود التعليق مسبقاً
+    const existingIndex = this.comments.findIndex(c => c._id === comment._id);
+    if (existingIndex === -1) {
+      this.comments.unshift(comment);
+      this.$emit('comment-count-updated', this.comments.length);
+    }
+  }
+  },
+
+    handleDeletedComment(event) {
+      const { postId, commentId } = event.detail;
+      if (postId === this.postId) {
+        // إزالة التعليق من القائمة
+        const commentIndex = this.comments.findIndex(comment => comment._id === commentId);
+        if (commentIndex !== -1) {
+          this.comments.splice(commentIndex, 1);
+          this.$emit('comment-count-updated', this.comments.length);
+        }
       }
     }
+  },
+  mounted() {
+    this.setupSocketListeners()
+  },
+  beforeUnmount() {
+    this.removeSocketListeners()
   }
 }
 </script>

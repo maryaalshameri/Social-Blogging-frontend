@@ -438,6 +438,7 @@ import { mapState } from 'vuex'
 import { postsAPI, usersAPI } from '@/services/api'
 import ConfirmDialog from '@/components/Common/ConfirmDialog.vue'
 import ToastService from '@/services/ToastService'
+import socketService from '@/services/socket'
 
 export default {
   name: 'AdminPosts',
@@ -586,6 +587,8 @@ export default {
         if (response.data.success) {
           // Remove from local posts
           this.posts = this.posts.filter(p => p._id !== this.postToDelete._id)
+          socketService.deletePost(this.post._id, this.user._id);
+
           ToastService.success('Post deleted successfully!')
           
           // Update pagination

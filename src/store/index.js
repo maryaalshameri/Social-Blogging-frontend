@@ -1,6 +1,7 @@
+// store/index.js
 import { createStore } from 'vuex'
 import notifications from './modules/notifications'
-import { authAPI } from '@/services/api'
+import { authAPI, notificationsAPI } from '@/services/api'
 
 export default createStore({
   state: {
@@ -88,6 +89,27 @@ export default createStore({
       const darkMode = localStorage.getItem('darkMode') === 'true'
       commit('SET_DARK_MODE', darkMode)
       dispatch('applyDarkMode')
+    },
+
+    // استخدام الـ actions من الـ module مباشرة
+    async fetchNotifications({ dispatch }, params = {}) {
+      return await dispatch('notifications/fetchNotifications', params)
+    },
+    
+    async markAsRead({ dispatch }, notificationId) {
+      return await dispatch('notifications/markAsRead', notificationId)
+    },
+    
+    async markAllAsRead({ dispatch }) {
+      return await dispatch('notifications/markAllAsRead')
+    },
+    
+    async deleteNotification({ dispatch }, notificationId) {
+      return await dispatch('notifications/deleteNotification', notificationId)
+    },
+    
+    addNotification({ dispatch }, notification) {
+      return dispatch('notifications/addNotification', notification)
     }
   },
   getters: {
