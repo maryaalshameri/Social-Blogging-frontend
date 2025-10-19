@@ -32,7 +32,7 @@
           <span :class="[
             'text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r',
             darkMode ? 'from-purple-400 to-indigo-300' : 'from-purple-600 to-indigo-700'
-          ]">BlogHub</span>
+          ]">MaryBlog</span>
         </router-link>
         <h2 :class="[
           'mt-8 text-3xl font-bold',
@@ -71,22 +71,24 @@
             </div>
             <div class="relative">
               <input
-                id="username"
-                v-model="form.username"
-                type="text"
-                required
-                :class="[
-                  'w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300',
-                  errors.username 
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-                    : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500',
-                  darkMode 
-                    ? 'bg-gray-700/50 text-white placeholder-gray-400' 
-                    : 'bg-white text-gray-900 placeholder-gray-500'
-                ]"
-                placeholder="Choose a unique username"
-                :disabled="loading"
-              >
+                  id="username"
+                  v-model="form.username"
+                  type="text"
+                  required
+                  @blur="markAsTouched('username')"
+                  @input="clearError('username')"
+                  :class="[
+                    'w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300',
+                    errors.username 
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                      : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500',
+                    darkMode 
+                      ? 'bg-gray-700/50 text-white placeholder-gray-400' 
+                      : 'bg-white text-gray-900 placeholder-gray-500'
+                  ]"
+                  placeholder="Choose a unique username"
+                  :disabled="loading"
+                >
               <div v-if="form.username && !errors.username" class="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
@@ -120,6 +122,8 @@
                 v-model="form.email"
                 type="email"
                 required
+                @blur="markAsTouched('email')"
+                @input="clearError('email')"
                 :class="[
                   'w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300',
                   errors.email 
@@ -264,28 +268,29 @@
               </button>
             </div>
             <div class="relative">
-              <input
-                id="password"
-                v-model="form.password"
-                :type="showPassword ? 'text' : 'password'"
-                required
-                @input="checkPasswordStrength"
-                :class="[
-                  'w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300',
-                  errors.password 
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-                    : passwordStrength.score > 2 
-                      ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
-                      : passwordStrength.score > 1
-                        ? 'border-yellow-500 focus:border-yellow-500 focus:ring-yellow-500'
-                        : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500',
-                  darkMode 
-                    ? 'bg-gray-700/50 text-white placeholder-gray-400' 
-                    : 'bg-white text-gray-900 placeholder-gray-500'
-                ]"
-                placeholder="Create a strong password"
-                :disabled="loading"
-              >
+             <input
+                  id="password"
+                  v-model="form.password"
+                  :type="showPassword ? 'text' : 'password'"
+                  required
+                  @blur="markAsTouched('password')"
+                  @input="clearError('password')"
+                  :class="[
+                    'w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300',
+                    errors.password 
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                      : passwordStrength.score > 2 
+                        ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
+                        : passwordStrength.score > 1
+                          ? 'border-yellow-500 focus:border-yellow-500 focus:ring-yellow-500'
+                          : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500',
+                    darkMode 
+                      ? 'bg-gray-700/50 text-white placeholder-gray-400' 
+                      : 'bg-white text-gray-900 placeholder-gray-500'
+                  ]"
+                  placeholder="Create a strong password"
+                  :disabled="loading"
+                >
               <div v-if="form.password" class="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <div :class="[
                   'w-3 h-3 rounded-full animate-pulse',
@@ -361,25 +366,27 @@
               </label>
             </div>
             <div class="relative">
-              <input
-                id="confirmPassword"
-                v-model="form.confirmPassword"
-                :type="showPassword ? 'text' : 'password'"
-                required
-                :class="[
-                  'w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300',
-                  errors.confirmPassword 
-                    ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
-                    : form.confirmPassword && passwordsMatch
-                      ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
-                      : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500',
-                  darkMode 
-                    ? 'bg-gray-700/50 text-white placeholder-gray-400' 
-                    : 'bg-white text-gray-900 placeholder-gray-500'
-                ]"
-                placeholder="Confirm your password"
-                :disabled="loading"
-              >
+                    <input
+                  id="confirmPassword"
+                  v-model="form.confirmPassword"
+                  :type="showPassword ? 'text' : 'password'"
+                  required
+                  @blur="markAsTouched('confirmPassword')"
+                  @input="clearError('confirmPassword')"
+                  :class="[
+                    'w-full px-4 py-3 rounded-xl border-2 focus:ring-2 focus:ring-opacity-50 transition-all duration-300',
+                    errors.confirmPassword 
+                      ? 'border-red-500 focus:border-red-500 focus:ring-red-500' 
+                      : form.confirmPassword && passwordsMatch
+                        ? 'border-green-500 focus:border-green-500 focus:ring-green-500'
+                        : 'border-gray-300 focus:border-purple-500 focus:ring-purple-500',
+                    darkMode 
+                      ? 'bg-gray-700/50 text-white placeholder-gray-400' 
+                      : 'bg-white text-gray-900 placeholder-gray-500'
+                  ]"
+                  placeholder="Confirm your password"
+                  :disabled="loading"
+                >
               <div v-if="form.confirmPassword" class="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <div v-if="passwordsMatch" class="w-5 h-5 text-green-500">
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -412,16 +419,16 @@
           </div>
 
           <!-- Submit Button -->
-          <button
-            type="submit"
-            :disabled="loading || !passwordsMatch || passwordStrength.score < 2"
-            :class="[
-              'w-full flex justify-center py-4 px-4 rounded-xl text-base font-semibold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-[1.02] active:scale-[0.98]',
-              loading || !passwordsMatch || passwordStrength.score < 2
-                ? 'bg-gray-400 cursor-not-allowed' 
-                : 'bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 shadow-lg hover:shadow-xl'
-            ]"
-          >
+                <button
+                  type="submit"
+                  :disabled="loading || !isFormValid"
+                  :class="[
+                    'w-full flex justify-center py-4 px-4 rounded-xl text-base font-semibold text-white transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 transform hover:scale-[1.02] active:scale-[0.98]',
+                    loading || !isFormValid
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 shadow-lg hover:shadow-xl'
+                  ]"
+                >
             <span v-if="loading" class="flex items-center">
               <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -480,10 +487,22 @@ export default {
       showPassword: false,
       loading: false,
       error: '',
-      errors: {},
+      errors: {
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        role: ''
+      },
       passwordStrength: {
         score: 0,
         label: 'Very Weak'
+      },
+      touched: {
+        username: false,
+        email: false,
+        password: false,
+        confirmPassword: false
       }
     }
   },
@@ -501,12 +520,175 @@ export default {
         { text: 'Special character', met: /[!@#$%^&*(),.?":{}|<>]/.test(this.form.password) },
         { text: 'No spaces', met: !/\s/.test(this.form.password) }
       ]
+    },
+    isFormValid() {
+      return Object.values(this.errors).every(error => error === '') && 
+             this.form.username && 
+             this.form.email && 
+             this.form.password && 
+             this.form.confirmPassword &&
+             this.passwordsMatch &&
+             this.passwordStrength.score >= 2
+    }
+  },
+  watch: {
+    'form.username': function(newVal) {
+      if (this.touched.username) {
+        this.validateUsername()
+      }
+    },
+    'form.email': function(newVal) {
+      if (this.touched.email) {
+        this.validateEmail()
+      }
+    },
+    'form.password': function(newVal) {
+      if (this.touched.password) {
+        this.validatePassword()
+        this.checkPasswordStrength()
+      }
+    },
+    'form.confirmPassword': function(newVal) {
+      if (this.touched.confirmPassword) {
+        this.validateConfirmPassword()
+      }
     }
   },
   methods: {
     ...mapActions(['login']),
+    
+    // Mark field as touched
+    markAsTouched(field) {
+      this.touched[field] = true
+      this[`validate${field.charAt(0).toUpperCase() + field.slice(1)}`]()
+    },
+    
+    // Validation methods
+    validateUsername() {
+      const username = this.form.username.trim()
+      
+      if (!username) {
+        this.errors.username = 'Username is required'
+        return false
+      }
+      
+      if (username.length < 3) {
+        this.errors.username = 'Username must be at least 3 characters'
+        return false
+      }
+      
+      if (username.length > 20) {
+        this.errors.username = 'Username must be less than 20 characters'
+        return false
+      }
+      
+      // السماح فقط بالحروف (بدون أرقام أو رموز)
+      if (!/^[a-zA-Z]+$/.test(username)) {
+        this.errors.username = 'Username can only contain letters (no numbers or symbols)'
+        return false
+      }
+      
+      this.errors.username = ''
+      return true
+    },
+    
+    validateEmail() {
+      const email = this.form.email.trim()
+      
+      if (!email) {
+        this.errors.email = 'Email is required'
+        return false
+      }
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+      if (!emailRegex.test(email)) {
+        this.errors.email = 'Please enter a valid email address'
+        return false
+      }
+      
+      this.errors.email = ''
+      return true
+    },
+    
+    validatePassword() {
+      const password = this.form.password
+      
+      if (!password) {
+        this.errors.password = 'Password is required'
+        return false
+      }
+      
+      if (password.length < 6) {
+        this.errors.password = 'Password must be at least 6 characters'
+        return false
+      }
+      
+      if (/\s/.test(password)) {
+        this.errors.password = 'Password cannot contain spaces'
+        return false
+      }
+      
+      if (this.passwordStrength.score < 2) {
+        this.errors.password = 'Please choose a stronger password'
+        return false
+      }
+      
+      this.errors.password = ''
+      return true
+    },
+    
+    validateConfirmPassword() {
+      const confirmPassword = this.form.confirmPassword
+      
+      if (!confirmPassword) {
+        this.errors.confirmPassword = 'Please confirm your password'
+        return false
+      }
+      
+      if (!this.passwordsMatch) {
+        this.errors.confirmPassword = 'Passwords do not match'
+        return false
+      }
+      
+      this.errors.confirmPassword = ''
+      return true
+    },
+    
+    validateRole() {
+      if (!this.form.role) {
+        this.errors.role = 'Please select a role'
+        return false
+      }
+      
+      this.errors.role = ''
+      return true
+    },
+    
+    // Validate all fields
+    validateAll() {
+      const validations = [
+        this.validateUsername(),
+        this.validateEmail(),
+        this.validatePassword(),
+        this.validateConfirmPassword(),
+        this.validateRole()
+      ]
+      
+      // Mark all fields as touched
+      Object.keys(this.touched).forEach(key => {
+        this.touched[key] = true
+      })
+      
+      return validations.every(validation => validation)
+    },
+    
     checkPasswordStrength() {
       let score = 0
+      
+      if (!this.form.password) {
+        this.passwordStrength = { score: 0, label: 'Very Weak' }
+        return
+      }
       
       // Length check
       if (this.form.password.length >= 6) score++
@@ -527,23 +709,16 @@ export default {
       const labels = ['Very Weak', 'Weak', 'Good', 'Strong', 'Very Strong']
       this.passwordStrength.label = labels[score]
     },
+    
     async handleRegister() {
+      // Validate all fields before submission
+      if (!this.validateAll()) {
+        ToastService.error('Please fix the validation errors before submitting')
+        return
+      }
+      
       this.loading = true
       this.error = ''
-      this.errors = {}
-
-      // Client-side validation
-      if (!this.passwordsMatch) {
-        this.errors.confirmPassword = 'Passwords do not match'
-        this.loading = false
-        return
-      }
-
-      if (this.passwordStrength.score < 2) {
-        this.errors.password = 'Please choose a stronger password'
-        this.loading = false
-        return
-      }
 
       try {
         const { confirmPassword, ...registerData } = this.form
@@ -555,12 +730,13 @@ export default {
             token: response.data.data.token
           })
           
+          ToastService.success('Account created successfully! Welcome to MaryBlog!')
           this.$router.push('/')
         }
       } catch (error) {
         if (error.response?.data?.errors) {
           this.errors = this.formatErrors(error.response.data.errors)
-          ToastService.error(this.errors)
+          ToastService.error('Please fix the validation errors')
         } else {
           this.error = error.response?.data?.message || 'Registration failed. Please try again.'
           ToastService.error(this.error)
@@ -569,6 +745,7 @@ export default {
         this.loading = false
       }
     },
+    
     formatErrors(errors) {
       const formatted = {}
       if (Array.isArray(errors)) {
@@ -577,8 +754,34 @@ export default {
             formatted[error.path] = error.msg
           }
         })
+      } else if (typeof errors === 'object') {
+        Object.keys(errors).forEach(key => {
+          formatted[key] = errors[key]
+        })
       }
       return formatted
+    },
+    
+    // Clear specific field error when user starts typing
+    clearError(field) {
+      this.errors[field] = ''
+    },
+    
+    // Reset all errors
+    resetErrors() {
+      this.errors = {
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        role: ''
+      }
+      this.touched = {
+        username: false,
+        email: false,
+        password: false,
+        confirmPassword: false
+      }
     }
   }
 }

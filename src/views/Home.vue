@@ -382,6 +382,33 @@
         </div>
       </div>
     </section>
+
+     <footer class="relative bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-800/50 border-t border-gray-200/50 dark:border-gray-700/50 py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center">
+          <div class="flex items-center justify-center space-x-3 mb-6">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </div>
+            <span class="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              MaryBlog
+            </span>
+          </div>
+          <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+            Where stories come to life. Join our community of writers and readers sharing inspiring content every day.
+          </p>
+          <div class="flex items-center justify-center space-x-6 text-gray-500 dark:text-gray-400">
+            <!-- <span>&copy; 2025 MaryBlog. All rights reserved.</span> -->
+              <p class="text-gray-400">
+            © 2025 MaryBlog. All rights reserved
+            <span class="text-purple-400"> Made with ❤️ for you all </span>
+          </p>
+          </div>
+        </div>
+      </div>
+    </footer>
   </div>
 </template>
 
@@ -389,6 +416,7 @@
 import { mapState } from 'vuex'
 import { postsAPI, likesAPI } from '@/services/api'
 import toastService from '@/services/ToastService'
+import socketService from '@/services/socket'
 
 export default {
   name: 'Home',
@@ -416,12 +444,200 @@ export default {
     ...mapState(['isAuthenticated', 'user', 'darkMode'])
   },
   async mounted() {
-    await this.loadPosts()
-    if (this.isAuthenticated) {
-      await this.loadUserLikes()
+  await this.loadPosts()
+  if (this.isAuthenticated) {
+    await this.loadUserLikes()
+  }
+  this.setupSocketListeners()
+},
+beforeUnmount() {
+  this.removeSocketListeners()
+},
+  methods: {
+
+
+
+setupSocketListeners() {
+  window.addEventListener('socket-postLiked', this.handlePostLiked)
+  window.addEventListener('socket-postUnliked', this.handlePostUnliked)
+  window.addEventListener('socket-commentLiked', this.handleCommentLiked)
+  window.addEventListener('socket-commentUnliked', this.handleCommentUnliked)
+   window.addEventListener('socket-newPost', this.handleNewPost) 
+   window.addEventListener('socket-commentAdded', this.handleCommentAdded) // إضافة جديدة
+  window.addEventListener('socket-commentDeleted', this.handleCommentDeleted) // إضافة جديدة
+  window.addEventListener('socket-postViewed', this.handlePostViewed) // إضافة جديدة
+  window.addEventListener('socket-postDeleted', this.handlePostDeleted)
+},
+
+removeSocketListeners() {
+  window.removeEventListener('socket-postLiked', this.handlePostLiked)
+  window.removeEventListener('socket-postUnliked', this.handlePostUnliked)
+  window.removeEventListener('socket-commentLiked', this.handleCommentLiked)
+  window.removeEventListener('socket-commentUnliked', this.handleCommentUnliked)
+  window.removeEventListener('socket-newPost', this.handleNewPost)
+   window.removeEventListener('socket-commentAdded', this.handleCommentAdded) // إضافة جديدة
+  window.removeEventListener('socket-commentDeleted', this.handleCommentDeleted) // إضافة جديدة
+  window.removeEventListener('socket-postViewed', this.handlePostViewed) // إضافة جديدة
+  window.removeEventListener('socket-postDeleted', this.handlePostDeleted)
+},
+handleNewPost(event) {
+  const newPost = event.detail
+  // إضافة المنشور الجديد في بداية القائمة
+  this.posts.unshift(newPost)
+  
+  // إذا تجاوزت القائمة الحد الأقصى، إزالة الأخير
+  if (this.posts.length > this.limit) {
+    this.posts.pop()
+  }
+  
+  console.log('New post added in real-time:', newPost.title)
+},
+
+  handlePostLiked(event) {
+  const { postId, userId, likesCount } = event.detail
+  const post = this.posts.find(p => p._id === postId)
+  if (post) {
+    post.likesCount = likesCount
+    if (userId === this.user?._id) {
+      this.userLikes.add(postId)
+    }
+  }
+},
+
+handlePostUnliked(event) {
+  const { postId, userId, likesCount } = event.detail
+  const post = this.posts.find(p => p._id === postId)
+  if (post) {
+    post.likesCount = likesCount
+    if (userId === this.user?._id) {
+      this.userLikes.delete(postId)
+    }
+  }
+},
+
+handleCommentLiked(event) {
+  const { commentId, userId, likesCount } = event.detail
+  // تحديث التعليقات إذا كانت موجودة
+  this.posts.forEach(post => {
+    if (post.comments) {
+      const comment = post.comments.find(c => c._id === commentId)
+      if (comment) {
+        comment.likesCount = likesCount
+      }
+    }
+  })
+},
+
+ handlePostDeleted(event) {
+    const { postId, deletedBy } = event.detail;
+    
+    // البحث عن المنشور قبل حذفه لعرض معلوماته
+    const deletedPost = this.posts.find(post => post._id === postId);
+    
+    // إزالة المنشور من القائمة
+    this.posts = this.posts.filter(post => post._id !== postId);
+    
+    console.log(`Post "${deletedPost?.title}" deleted by user ${deletedBy}`);
+    
+    // إظهار إشعار للمستخدم
+    if (deletedPost) {
+      toastService.info(`Post "${deletedPost.title}" has been deleted`);
+    } else {
+      toastService.info('A post has been deleted');
+    }
+    
+    // إذا كانت القائمة فارغة بعد الحذف، إعادة تحميل المنشورات
+    if (this.posts.length === 0) {
+      this.page = 1;
+      this.loadPosts();
     }
   },
-  methods: {
+
+handleCommentUnliked(event) {
+  const { commentId, userId, likesCount } = event.detail
+  // تحديث التعليقات إذا كانت موجودة
+  this.posts.forEach(post => {
+    if (post.comments) {
+      const comment = post.comments.find(c => c._id === commentId)
+      if (comment) {
+        comment.likesCount = likesCount
+      }
+    }
+  })
+},
+
+handleCommentAdded(event) {
+  const { postId, comment } = event.detail
+  const post = this.posts.find(p => p._id === postId)
+  if (post) {
+    post.commentsCount = (post.commentsCount || 0) + 1
+    console.log(`Comment added to post ${postId}, count: ${post.commentsCount}`)
+  }
+},
+
+handleCommentDeleted(event) {
+  const { postId, commentId } = event.detail
+  const post = this.posts.find(p => p._id === postId)
+  if (post && post.commentsCount > 0) {
+    post.commentsCount -= 1
+    console.log(`Comment deleted from post ${postId}, count: ${post.commentsCount}`)
+  }
+},
+
+handlePostViewed(event) {
+  const { postId, views } = event.detail
+  const post = this.posts.find(p => p._id === postId)
+  if (post) {
+    post.views = views
+    console.log(`Post ${postId} views updated to: ${views}`)
+  }
+},
+
+async toggleLike(post) {
+  if (!this.isAuthenticated) {
+    this.requireLogin()
+    return
+  }
+
+  this.likingPostId = post._id
+  try {
+    if (this.isLiked(post)) {
+      // إرسال طلب إلغاء الإعجاب عبر Socket أولاً
+      socketService.unlikePost(post._id, this.user._id)
+      await likesAPI.unlikePost(post._id)
+      this.userLikes.delete(post._id)
+      // لا تقم بتحديث العدد هنا - سيتولى الـ Socket ذلك
+      toastService.success('Post unliked')
+    } else {
+      // إرسال طلب الإعجاب عبر Socket أولاً
+      socketService.likePost(post._id, this.user._id)
+      await likesAPI.likePost(post._id)
+      this.userLikes.add(post._id)
+      // لا تقم بتحديث العدد هنا - سيتولى الـ Socket ذلك
+      toastService.success('Post liked! ❤️')
+    }
+  } catch (error) {
+    console.error('Error toggling like:', error)
+    const errorMessage = error.response?.data?.message || 'Failed to update like'
+    
+    if (errorMessage.includes('already liked')) {
+      socketService.unlikePost(post._id, this.user._id)
+      await likesAPI.unlikePost(post._id)
+      this.userLikes.delete(post._id)
+      toastService.info('Like removed')
+    } else {
+      toastService.error(errorMessage)
+    }
+  } finally {
+    this.likingPostId = null
+  }
+},
+
+
+
+
+
+
     async loadPosts() {
       this.loading = true
       try {
@@ -467,41 +683,41 @@ export default {
       return this.userLikes.has(post._id)
     },
 
-    async toggleLike(post) {
-      if (!this.isAuthenticated) {
-        this.requireLogin()
-        return
-      }
+    // async toggleLike(post) {
+    //   if (!this.isAuthenticated) {
+    //     this.requireLogin()
+    //     return
+    //   }
 
-      this.likingPostId = post._id
-      try {
-        if (this.isLiked(post)) {
-          await likesAPI.unlikePost(post._id)
-          this.userLikes.delete(post._id)
-          post.likesCount = Math.max(0, post.likesCount - 1)
-          toastService.success('Post unliked')
-        } else {
-          await likesAPI.likePost(post._id)
-          this.userLikes.add(post._id)
-          post.likesCount += 1
-          toastService.success('Post liked! ❤️')
-        }
-      } catch (error) {
-        console.error('Error toggling like:', error)
-        const errorMessage = error.response?.data?.message || 'Failed to update like'
+    //   this.likingPostId = post._id
+    //   try {
+    //     if (this.isLiked(post)) {
+    //       await likesAPI.unlikePost(post._id)
+    //       this.userLikes.delete(post._id)
+    //       post.likesCount = Math.max(0, post.likesCount - 1)
+    //       toastService.success('Post unliked')
+    //     } else {
+    //       await likesAPI.likePost(post._id)
+    //       this.userLikes.add(post._id)
+    //       post.likesCount += 1
+    //       toastService.success('Post liked! ❤️')
+    //     }
+    //   } catch (error) {
+    //     console.error('Error toggling like:', error)
+    //     const errorMessage = error.response?.data?.message || 'Failed to update like'
         
-        if (errorMessage.includes('already liked')) {
-          await likesAPI.unlikePost(post._id)
-          this.userLikes.delete(post._id)
-          post.likesCount = Math.max(0, post.likesCount - 1)
-          toastService.info('Like removed')
-        } else {
-          toastService.error(errorMessage)
-        }
-      } finally {
-        this.likingPostId = null
-      }
-    },
+    //     if (errorMessage.includes('already liked')) {
+    //       await likesAPI.unlikePost(post._id)
+    //       this.userLikes.delete(post._id)
+    //       post.likesCount = Math.max(0, post.likesCount - 1)
+    //       toastService.info('Like removed')
+    //     } else {
+    //       toastService.error(errorMessage)
+    //     }
+    //   } finally {
+    //     this.likingPostId = null
+    //   }
+    // },
 
     requireLogin() {
       toastService.warning('Please login to interact with stories')
@@ -623,4 +839,4 @@ export default {
     backdrop-filter: blur(8px);
   }
 }
-</style>
+</style>    

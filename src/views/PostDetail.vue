@@ -163,52 +163,53 @@
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-4">
               <!-- Like Button -->
-              <button 
-                @click="toggleLike"
-                :disabled="likeLoading"
-                class="group flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-105"
-                :class="[
-                  isLiked 
-                    ? 'bg-red-500/20 text-red-600 dark:text-red-400 shadow-lg shadow-red-500/20' 
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400',
-                  likeLoading ? 'opacity-50 cursor-not-allowed' : ''
-                ]"
-              >
-                <svg v-if="isLiked" class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
-                </svg>
-                <svg v-else class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                </svg>
-                <span class="font-semibold">{{ post.likesCount }}</span>
-              </button>
+ <button 
+  @click="toggleLike"
+  :disabled="likeLoading"
+  class="action-button group flex items-center gap-3 px-6 py-3 rounded-2xl transition-all duration-300 transform hover:scale-105"
+  :class="[
+    isLiked 
+      ? 'bg-red-500/20 text-red-600 dark:text-red-400 shadow-lg shadow-red-500/20' 
+      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-red-500/10 hover:text-red-600 dark:hover:text-red-400',
+    likeLoading ? 'opacity-50 cursor-not-allowed' : ''
+  ]"
+>
+  <!-- أيقونة اللايك -->
+  <svg v-if="isLiked" class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
+    <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+  </svg>
+  <svg v-else class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+  </svg>
+  <span class="font-semibold">{{ post.likesCount }}</span>
+</button>
 
               <!-- Share Button -->
-              <button 
-                @click="sharePost"
-                class="group flex items-center gap-3 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400"
-              >
-                <svg class="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
-                </svg>
-                <span class="font-semibold">Share</span>
-              </button>
+<button 
+  @click="sharePost"
+  class="action-button group flex items-center gap-3 px-6 py-3 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-2xl transition-all duration-300 transform hover:scale-105 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400"
+>
+  <svg class="w-6 h-6 transform group-hover:rotate-12 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+  </svg>
+  <span class="font-semibold">Share</span>
+</button>
             </div>
 
             <!-- Bookmark Button -->
-            <button 
-              @click="toggleBookmark"
-              class="group p-3 rounded-2xl transition-all duration-300 transform hover:scale-110"
-              :class="[
-                isBookmarked 
-                  ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400 shadow-lg shadow-blue-500/20' 
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400'
-              ]"
-            >
-              <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
-              </svg>
-            </button>
+<button 
+  @click="toggleBookmark"
+  class="action-button group p-3 rounded-2xl transition-all duration-300 transform hover:scale-110"
+  :class="[
+    isBookmarked 
+      ? 'bg-blue-500/20 text-blue-600 dark:text-blue-400 shadow-lg shadow-blue-500/20' 
+      : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400'
+  ]"
+>
+  <svg class="w-6 h-6 transform group-hover:scale-110 transition-transform duration-300" fill="currentColor" viewBox="0 0 20 20">
+    <path d="M5 4a2 2 0 012-2h6a2 2 0 012 2v14l-5-2.5L5 18V4z"/>
+  </svg>
+</button>
           </div>
         </div>
       </article>
@@ -232,6 +233,7 @@
             @add-comment="addComment"
             @delete-comment="deleteComment"
             @toggle-comment-like="toggleCommentLike"
+            @comment-count-updated="handleCommentCountUpdated"
           />
         </div>
       </div>
@@ -300,6 +302,7 @@ import { postsAPI, commentsAPI, likesAPI } from '../services/api'
 import CommentList from '../components/Comment/CommentList.vue'
 import ConfirmDialog from '@/components/Common/ConfirmDialog.vue'
 import toastService from '../services/ToastService'
+import socketService from '../services/socket'
 
 export default {
   name: 'PostDetail',
@@ -328,176 +331,389 @@ export default {
              this.user._id.toString() === this.post.author._id.toString()
     }
   },
-  async mounted() {
+async mounted() {
+
+    // إعادة تعيين البيانات عند دخول الصفحة
+  this.post = null
+  this.loading = true
+  this.error = ''
+  await this.loadPost()
+  await this.loadComments()
+  await this.checkIfLiked()
+  this.loadPost()
+  this.trackView()
+   if (!socketService.getConnectionStatus()) {
+    socketService.connect();
+  }
+  // الانضمام إلى غرفة المنشور الحالي
+  socketService.joinPostRoom(this.$route.params.id)
+  this.setupSocketListeners()
+    this.sendViewEvent()
+},
+beforeUnmount() {
+  // مغادرة غرفة المنشور
+  socketService.leavePostRoom(this.$route.params.id)
+  this.removeSocketListeners()
+},
+watch: {
+  '$route.params.id': {
+    immediate: true,
+    handler(newId, oldId) {
+      if (newId !== oldId) {
+        this.refreshPostData()
+      }
+    }
+  }
+},
+methods: {
+setupSocketListeners() {
+  window.addEventListener('socket-postLiked', this.handlePostLiked)
+  window.addEventListener('socket-postUnliked', this.handlePostUnliked)
+  window.addEventListener('socket-commentLiked', this.handleCommentLiked)
+  window.addEventListener('socket-commentUnliked', this.handleCommentUnliked)
+  window.addEventListener('socket-commentAdded', this.handleNewComment)
+  window.addEventListener('socket-commentDeleted', this.handleDeletedComment)
+    window.addEventListener('socket-postViewed', this.handlePostViewed)
+},
+
+removeSocketListeners() {
+  window.removeEventListener('socket-postLiked', this.handlePostLiked)
+  window.removeEventListener('socket-postUnliked', this.handlePostUnliked)
+  window.removeEventListener('socket-commentLiked', this.handleCommentLiked)
+  window.removeEventListener('socket-commentUnliked', this.handleCommentUnliked)
+  window.removeEventListener('socket-commentAdded', this.handleNewComment)
+  window.removeEventListener('socket-commentDeleted', this.handleDeletedComment)
+  window.removeEventListener('socket-postViewed', this.handlePostViewed)
+},
+async refreshPostData() {
+    this.post = null
+    this.comments = []
+    this.loading = true
+    this.error = ''
+    
     await this.loadPost()
     await this.loadComments()
     await this.checkIfLiked()
   },
-  methods: {
-    async loadPost() {
-      this.loading = true
-      try {
-        const response = await postsAPI.getById(this.$route.params.id)
-        this.post = response.data.data
-        
-        // تأكد من أن البيانات موجودة
-        console.log('Post loaded:', this.post)
-        console.log('Post author:', this.post.author)
-        console.log('Current user:', this.user)
-        console.log('Is author:', this.isAuthor)
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Post not found'
-        console.error('Error loading post:', error)
-      } finally {
-        this.loading = false
+
+
+  handlePostLiked(event) {
+    const { postId, userId, likesCount } = event.detail
+    if (postId === this.post._id) {
+      this.post.likesCount = likesCount
+      if (userId === this.user?._id) {
+        this.isLiked = true
       }
-    },
-    async loadComments() {
-      try {
-        const response = await commentsAPI.getByPost(this.$route.params.id)
-        this.comments = response.data.data
-      } catch (error) {
-        console.error('Error loading comments:', error)
-      }
-    },
-    async checkIfLiked() {
-      if (!this.user) return
+    }
+  },
+
+handlePostLiked(event) {
+  const { postId, userId, likesCount } = event.detail
+  if (postId === this.post._id) {
+    this.post.likesCount = likesCount
+    if (userId === this.user?._id) {
+      this.isLiked = true
+    }
+  }
+},
+
+handlePostUnliked(event) {
+  const { postId, userId, likesCount } = event.detail
+  if (postId === this.post._id) {
+    this.post.likesCount = likesCount
+    if (userId === this.user?._id) {
+      this.isLiked = false
+    }
+  }
+},
+
+  trackView() {
+    if (this.isAuthenticated && socketService.getConnectionStatus()) {
+      socketService.viewPost(this.postId, this.user._id)
+    }
+  },
+
+handleCommentLiked(event) {
+  const { commentId, userId, likesCount } = event.detail
+  const comment = this.comments.find(c => c._id === commentId)
+  if (comment) {
+    comment.likesCount = likesCount
+    if (userId === this.user?._id) {
+      comment.isLiked = true
+    }
+  }
+},
+
+handleCommentUnliked(event) {
+  const { commentId, userId, likesCount } = event.detail
+  const comment = this.comments.find(c => c._id === commentId)
+  if (comment) {
+    comment.likesCount = likesCount
+    if (userId === this.user?._id) {
+      comment.isLiked = false
+    }
+  }
+},
+
+  handleCommentDeleted(event) {
+    const { postId, commentId } = event.detail
+    if (postId === this.post._id) {
+      this.comments = this.comments.filter(comment => comment._id !== commentId)
+      this.post.commentsCount = Math.max(0, this.post.commentsCount - 1)
+    }
+  },
+  sendViewEvent() {
+    if (!this.user || !this.post) return
+    
+    // منع تكرار المشاهدات من نفس المستخدم في الجلسة نفسها
+    const viewedPosts = JSON.parse(sessionStorage.getItem('viewedPosts') || '[]')
+    
+    if (!viewedPosts.includes(this.post._id)) {
+      // إرسال عبر Socket فقط
+      socketService.viewPost(this.post._id, this.user._id)
       
+      // تخزين في sessionStorage لمنع التكرار
+      viewedPosts.push(this.post._id)
+      sessionStorage.setItem('viewedPosts', JSON.stringify(viewedPosts))
+      
+      console.log('View event sent for post:', this.post._id)
+    }
+  },
+
+  // تحديث handlePostViewed لتعكس التغييرات
+  handlePostViewed(event) {
+    const { postId, views } = event.detail
+    if (postId === this.post._id) {
+      this.post.views = views
+      console.log('Post views updated:', views)
+    }
+  },
+
+ async toggleLike() {
+  if (!this.user) {
+    toastService.warning('Please login to like posts')
+    this.$router.push('/login')
+    return
+  }
+
+  this.likeLoading = true
+  try {
+    if (this.isLiked) {
+      // إرسال طلب إلغاء الإعجاب عبر Socket أولاً
+      socketService.unlikePost(this.post._id, this.user._id)
+      await likesAPI.unlikePost(this.post._id)
+      // لا تقم بتحديث العدد هنا - سيتولى الـ Socket ذلك
+      this.isLiked = false
+      toastService.success('Post unliked')
+    } else {
+      // إرسال طلب الإعجاب عبر Socket أولاً
+      socketService.likePost(this.post._id, this.user._id)
+      await likesAPI.likePost(this.post._id)
+      // لا تقم بتحديث العدد هنا - سيتولى الـ Socket ذلك
+      this.isLiked = true
+      toastService.success('Post liked! ❤️')
+    }
+  } catch (error) {
+    console.error('Error toggling like:', error)
+    const errorMessage = error.response?.data?.message || 'Failed to update like'
+    
+    if (errorMessage.includes('already liked')) {
+      socketService.unlikePost(this.post._id, this.user._id)
+      await likesAPI.unlikePost(this.post._id)
+      // لا تقم بتحديث العدد هنا - سيتولى الـ Socket ذلك
+      this.isLiked = false
+      toastService.info('Like removed')
+    } else {
+      toastService.error(errorMessage)
+    }
+  } finally {
+    this.likeLoading = false
+  }
+},
+
+async addComment(commentData) {
+  try {
+    const response = await commentsAPI.create(this.post._id, commentData)
+    const newComment = response.data.data
+    
+    // إضافة التعليق محلياً فقط بدون إرسال socket event
+    // لأن الخادم سيرسل event تلقائياً لجميع المستخدمين
+    this.comments.unshift(newComment)
+    this.post.commentsCount++
+    
+    // لا ترسل socket event هنا - الخادم سيفعل ذلك تلقائياً
+    toastService.success('Comment added successfully')
+  } catch (error) {
+    console.error('Error adding comment:', error)
+    const errorMessage = error.response?.data?.message || 'Failed to add comment'
+    toastService.error(errorMessage)
+  }
+},
+
+  async deleteComment(commentId) {
+    try {
+      await commentsAPI.delete(commentId)
+      
+      socketService.deleteComment(commentId, this.post._id)
+      
+      this.comments = this.comments.filter(comment => comment._id !== commentId)
+      this.post.commentsCount = Math.max(0, this.post.commentsCount - 1)
+      toastService.success('Comment deleted successfully')
+    } catch (error) {
+      console.error('Error deleting comment:', error)
+      const errorMessage = error.response?.data?.message || 'Failed to delete comment'
+      toastService.error(errorMessage)
+    }
+  },
+
+  async loadPost() {
+    this.loading = true
+    try {
+      const response = await postsAPI.getById(this.$route.params.id)
+      this.post = response.data.data
+    } catch (error) {
+      this.error = error.response?.data?.message || 'Post not found'
+      console.error('Error loading post:', error)
+    } finally {
+      this.loading = false
+    }
+  },
+
+  async loadComments() {
+    try {
+      const response = await commentsAPI.getByPost(this.$route.params.id)
+      this.comments = response.data.data
+    } catch (error) {
+      console.error('Error loading comments:', error)
+    }
+  },
+
+async checkIfLiked() {
+      if (!this.user || !this.post) return
       try {
-        this.isLiked = false
+        const response = await likesAPI.checkIfLiked(this.post._id)
+        this.isLiked = response.data?.liked || false
       } catch (error) {
         console.error('Error checking like status:', error)
       }
     },
-    formatDate(dateString) {
-      return new Date(dateString).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric'
-      })
-    },
-    async toggleLike() {
-      if (!this.user) {
-        toastService.warning('Please login to like posts')
-        this.$router.push('/login')
-        return
-      }
 
-      this.likeLoading = true
-      try {
-        if (this.isLiked) {
-          await likesAPI.unlikePost(this.post._id)
-          this.post.likesCount = Math.max(0, this.post.likesCount - 1)
-          this.isLiked = false
-          toastService.success('Post unliked')
-        } else {
-          await likesAPI.likePost(this.post._id)
-          this.post.likesCount++
-          this.isLiked = true
-          toastService.success('Post liked! ❤️')
-        }
-      } catch (error) {
-        console.error('Error toggling like:', error)
-        const errorMessage = error.response?.data?.message || 'Failed to update like'
-        
-        if (errorMessage.includes('already liked')) {
-          await likesAPI.unlikePost(this.post._id)
-          this.post.likesCount = Math.max(0, this.post.likesCount - 1)
-          this.isLiked = false
-          toastService.info('Like removed')
-        } else {
-          toastService.error(errorMessage)
-        }
-      } finally {
-        this.likeLoading = false
+  formatDate(dateString) {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  },
+
+  async deletePost() {
+    this.showDeleteConfirm = false
+    this.deleting = true
+    try {
+      await postsAPI.delete(this.post._id)
+      socketService.deletePost(this.post._id, this.user._id);
+
+      toastService.success('Post deleted successfully')
+
+      this.$router.push('/')
+    } catch (error) {
+      console.error('Error deleting post:', error)
+      const errorMessage = error.response?.data?.message || 'Failed to delete post'
+      toastService.error(errorMessage)
+    } finally {
+      this.deleting = false
+    }
+  },
+
+  async sharePost() {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: this.post.title,
+          text: this.post.content.substring(0, 100),
+          url: window.location.href
+        })
+      } else {
+        await navigator.clipboard.writeText(window.location.href)
+        toastService.success('Link copied to clipboard! 📋')
       }
-    },
-    async addComment(commentData) {
-      try {
-        const response = await commentsAPI.create(this.post._id, commentData)
-        this.comments.unshift(response.data.data)
-        this.post.commentsCount++
-        toastService.success('Comment added successfully')
-      } catch (error) {
-        console.error('Error adding comment:', error)
-        const errorMessage = error.response?.data?.message || 'Failed to add comment'
-        toastService.error(errorMessage)
-      }
-    },
-    async deleteComment(commentId) {
-      try {
-        await commentsAPI.delete(commentId)
-        this.comments = this.comments.filter(comment => comment._id !== commentId)
-        this.post.commentsCount = Math.max(0, this.post.commentsCount - 1)
-        toastService.success('Comment deleted successfully')
-      } catch (error) {
-        console.error('Error deleting comment:', error)
-        const errorMessage = error.response?.data?.message || 'Failed to delete comment'
-        toastService.error(errorMessage)
-      }
-    },
-    async toggleCommentLike(commentId) {
-      // سيتم تنفيذها في CommentList
-    },
-    async deletePost() {
-      this.showDeleteConfirm = false
-      this.deleting = true
-      
-      try {
-        await postsAPI.delete(this.post._id)
-        toastService.success('Post deleted successfully')
-        this.$router.push('/')
-      } catch (error) {
-        console.error('Error deleting post:', error)
-        const errorMessage = error.response?.data?.message || 'Failed to delete post'
-        toastService.error(errorMessage)
-      } finally {
-        this.deleting = false
-      }
-    },
-    async sharePost() {
-      try {
-        if (navigator.share) {
-          await navigator.share({
-            title: this.post.title,
-            text: this.post.content.substring(0, 100),
-            url: window.location.href
-          })
-        } else {
+    } catch (error) {
+      if (error.name !== 'AbortError') {
+        console.error('Error sharing post:', error)
+        try {
           await navigator.clipboard.writeText(window.location.href)
           toastService.success('Link copied to clipboard! 📋')
+        } catch (clipboardError) {
+          console.error('Error copying to clipboard:', clipboardError)
+          toastService.error('Failed to share post. Please copy the URL manually.')
         }
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          console.error('Error sharing post:', error)
-          try {
-            await navigator.clipboard.writeText(window.location.href)
-            toastService.success('Link copied to clipboard! 📋')
-          } catch (clipboardError) {
-            console.error('Error copying to clipboard:', clipboardError)
-            toastService.error('Failed to share post. Please copy the URL manually.')
-          }
-        }
-      }
-    },
-    toggleBookmark() {
-      this.isBookmarked = !this.isBookmarked
-      if (this.isBookmarked) {
-        toastService.success('Story bookmarked 🔖')
-      } else {
-        toastService.info('Story removed from bookmarks')
       }
     }
+  },
+
+async toggleBookmark() {
+      if (!this.user) {
+        toastService.warning('Please login to bookmark posts')
+           setTimeout(() => {
+            window.location.href = '/login'
+          }, 500)
+          
+          return
+      }
+
+      try {
+        this.isBookmarked = !this.isBookmarked
+        toastService.success(
+          this.isBookmarked ? 'Post bookmarked!' : 'Bookmark removed'
+        )
+        // يمكنك ربط هذا مع API لاحقًا مثل:
+        // await bookmarksAPI.toggle(this.post._id)
+      } catch (error) {
+        console.error('Error toggling bookmark:', error)
+        toastService.error('Failed to update bookmark')
+      }
+    },
+handleCommentCountUpdated(newCount) {
+  if (this.post) {
+    this.post.commentsCount = newCount;
   }
+},
+
+  async toggleCommentLike(commentId) {
+    // سيتم تنفيذها في CommentList
+  }
+}
 }
 </script>
 
 <style scoped>
-/* إصلاح مشكلة الضغط على التصميم */
+/* منع انتشار تأثير hover على العناصر الكبيرة */
 .article-container {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
+}
+
+/* تأكد أن الأزرار مستقلة */
+.action-button {
+  position: relative;
+  z-index: 10;
+  isolation: isolate; /* عزل العنصر عن الخلفية */
+}
+
+/* إصلاح تأثيرات الـ hover */
+.hover-lift {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+
+/* منع تأثير الضغط على العناصر الكبيرة عند hover على الأزرار */
+.prevent-squish {
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* Custom Animations */
@@ -524,20 +740,5 @@ export default {
   .backdrop-blur-sm {
     backdrop-filter: blur(8px);
   }
-}
-
-/* تحسينات للأداء */
-.hover-lift {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hover-lift:hover {
-  transform: translateY(-4px);
-}
-
-/* منع تأثير الضغط على العناصر الكبيرة */
-.prevent-squish {
-  transform: translateZ(0);
-  will-change: transform;
 }
 </style>

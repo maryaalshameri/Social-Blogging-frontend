@@ -32,7 +32,7 @@
           <span :class="[
             'text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r',
             darkMode ? 'from-blue-400 to-indigo-300' : 'from-blue-600 to-indigo-700'
-          ]">BlogHub</span>
+          ]">MaryBlog</span>
         </router-link>
         <h2 :class="[
           'mt-8 text-3xl font-bold',
@@ -181,12 +181,15 @@
             </div>
 
             <div class="text-sm">
-              <a href="#" :class="[
-                'font-medium transition-colors',
-                darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
-              ]">
+              <router-link 
+                to="/forgot-password" 
+                :class="[
+                  'font-medium transition-colors',
+                  darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500'
+                ]"
+              >
                 Forgot your password?
-              </a>
+              </router-link>
             </div>
           </div>
 
