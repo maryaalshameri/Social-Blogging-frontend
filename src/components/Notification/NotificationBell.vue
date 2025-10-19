@@ -200,19 +200,19 @@
 
             <!-- Hover Actions -->
             <div class="absolute right-3 top-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <button
-                @click.stop="removeNotification(notification.id)"
-                :class="[
-                  'p-1 rounded-lg transition-colors',
-                  darkMode 
-                    ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/30' 
-                    : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
-                ]"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                </svg>
-              </button>
+             <button
+              @click.stop="removeNotification(notification._id || notification.id)"
+              :class="[
+                'p-1 rounded-lg transition-colors',
+                darkMode 
+                  ? 'text-gray-400 hover:text-red-400 hover:bg-red-900/30' 
+                  : 'text-gray-400 hover:text-red-500 hover:bg-red-50'
+              ]"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
             </div>
           </div>
         </div>
@@ -237,7 +237,8 @@
 </template>
 
 <script>
-import { mapState, mapActions, mapGetters } from 'vuex'
+import { mapState } from 'vuex'
+import toastService from '@/services/ToastService'
 
 export default {
   name: 'NotificationBell',
@@ -246,29 +247,98 @@ export default {
       showDropdown: false
     }
   },
-  computed: {
-    ...mapState(['darkMode']),
-    ...mapState('notifications', ['notifications']),
-    ...mapGetters('notifications', ['unreadCount']),
-    hasUnread() {
-      return this.unreadCount > 0
-    }
-  },
+    computed: {
+      ...mapState(['darkMode']),
+      notifications() {
+        // الوصول للـ state بشكل صحيح
+        return this.$store.state.notifications.notifications || []
+      },
+      unreadCount() {
+        return this.$store.state.notifications.unreadCount || 0
+      },
+      hasUnread() {
+        return this.unreadCount > 0
+      }
+    },
   methods: {
-    ...mapActions('notifications', ['markAsRead', 'markAllAsRead', 'removeNotification']),
+    // استخدام الـ actions الصحيحة - بدون namespace
+    async fetchNotifications() {
+      try {
+        // استخدم dispatch مباشرة بدون namespace
+        await this.$store.dispatch('fetchNotifications')
+      } catch (error) {
+        console.error('Error fetching notifications:', error)
+        toastService.error('Failed to load notifications');
+      }
+    },
     
-    toggleNotifications() {
+    async markAsRead(notificationId) {
+      try {
+        await this.$store.dispatch('markAsRead', notificationId)
+      } catch (error) {
+        console.error('Error marking as read:', error)
+        toastService.error('Failed to mark as read');
+      }
+    },
+    
+    async markAllAsRead() {
+      try {
+        await this.$store.dispatch('markAllAsRead')
+      } catch (error) {
+        console.error('Error marking all as read:', error)
+        toastService.error('Failed to mark all as read');
+      }
+    },
+    async removeNotification(notificationId) {
+      try {
+        // استخدم dispatch الصحيح مع المسار الكامل
+        await this.$store.dispatch('deleteNotification', notificationId)
+        
+        // يمكنك أيضاً إضافة رسالة نجاح إذا أردت
+        console.log('Notification deleted successfully')
+        toastService.success('Notification deleted')
+      } catch (error) {
+        console.error('Error removing notification:', error)
+        // إضافة رسالة خطأ للمستخدم
+        toastService.error('Failed to delete notification')
+      }
+    },
+    
+    async removeNotification(notificationId) {
+      try {
+        await this.$store.dispatch('deleteNotification', notificationId)
+      } catch (error) {
+        console.error('Error removing notification:', error)
+      }
+    },
+    
+    async toggleNotifications() {
+      if (!this.showDropdown) {
+        await this.fetchNotifications()
+      }
       this.showDropdown = !this.showDropdown
     },
     
-    handleNotificationClick(notification) {
-      this.markAsRead(notification.id)
-      
-      if (notification.action) {
-        notification.action()
+    async handleNotificationClick(notification) {
+      try {
+        if (!notification.read) {
+          await this.markAsRead(notification._id || notification.id)
+        }
+        
+        // إغلاق القائمة المنسدلة
+        this.showDropdown = false
+        
+        // التنقل بناءً على نوع الإشعار
+        if (notification.type === 'like' && notification.relatedPost) {
+          this.$router.push(`/posts/${notification.relatedPost._id || notification.relatedPost}`)
+        } else if (notification.type === 'comment' && notification.relatedPost) {
+          this.$router.push(`/posts/${notification.relatedPost._id || notification.relatedPost}`)
+        } else if (notification.type === 'follow' && notification.relatedUser) {
+          this.$router.push(`/users/${notification.relatedUser._id || notification.relatedUser}`)
+        }
+      } catch (error) {
+        console.error('Error handling notification click:', error)
       }
-      
-      this.showDropdown = false
     },
     
     getNotificationIcon(type) {
@@ -276,7 +346,9 @@ export default {
         like: 'bg-gradient-to-br from-red-500 to-pink-600',
         comment: 'bg-gradient-to-br from-blue-500 to-cyan-600',
         follow: 'bg-gradient-to-br from-green-500 to-emerald-600',
-        system: 'bg-gradient-to-br from-purple-500 to-indigo-600'
+        system: 'bg-gradient-to-br from-purple-500 to-indigo-600',
+        post_published: 'bg-gradient-to-br from-yellow-500 to-orange-600',
+        comment_reply: 'bg-gradient-to-br from-indigo-500 to-purple-600'
       }
       return icons[type] || icons.system
     },
@@ -299,7 +371,8 @@ export default {
     }
   },
   
-  mounted() {
+  async mounted() {
+    await this.fetchNotifications()
     document.addEventListener('click', this.handleClickOutside)
   },
   
@@ -314,7 +387,6 @@ export default {
   }
 }
 </script>
-
 <style scoped>
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;

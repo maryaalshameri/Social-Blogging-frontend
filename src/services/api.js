@@ -41,7 +41,11 @@ export const authAPI = {
   register: (userData) => api.post('/auth/signup', userData),
   getMe: () => api.get('/auth/me'),
   getProfile: () => api.get('/auth/profile'),
-  updateProfile: (userData) => api.put('/auth/profile', userData)
+  updateProfile: (userData) => api.put('/auth/profile', userData),
+  verifyEmail: (token) => api.post('/auth/verify-email', { token }),
+  resendVerification: (email) => api.post('/auth/resend-verification', { email }),
+   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+  resetPassword: (token, newPassword) => api.post('/auth/reset-password', { token, newPassword })
 }
 
 export const postsAPI = {
@@ -85,7 +89,16 @@ export const usersAPI = {
     }
     return api.put(`/users/${id}`, userData, config)
   },
-  delete: (id) => api.delete(`/users/${id}`) // تأكد أن هذا المسار صحيح
+  delete: (id) => api.delete(`/users/${id}`), // تأكد أن هذا المسار صحيح
+
+// إضافة دوال المتابعة
+  follow: (userId) => api.post(`/users/${userId}/follow`),
+  unfollow: (userId) => api.delete(`/users/${userId}/follow`),
+  getFollowStatus: (userId) => api.get(`/users/${userId}/follow-status`),
+  getStats: (userId) => api.get(`/users/${userId}/stats`)
+
+
+
 };
 
 export const adminAPI = {
@@ -93,6 +106,21 @@ export const adminAPI = {
   getUsers: (params = {}) => api.get('/admin/users', { params }),
   getPosts: (params = {}) => api.get('/admin/posts', { params }),
   getComments: (params = {}) => api.get('/admin/comments', { params })
-}
+};
+
+
+export const readerAPI = {
+  getMyLikedPosts: (params = {}) => api.get('/reader/my-likes', { params }),
+  getMyComments: (params = {}) => api.get('/reader/my-comments', { params }),
+  getMyStats: () => api.get('/reader/stats')
+};
+
+export const notificationsAPI = {
+  getAll: (params) => api.get('/notifications', { params }),
+  getStats: () => api.get('/notifications/stats'),
+  markAsRead: (id) => api.put(`/notifications/${id}/read`),
+  markAllAsRead: () => api.put('/notifications/read-all'),
+  delete: (id) => api.delete(`/notifications/${id}`)
+};
 
 export default api
