@@ -89,10 +89,10 @@
                 v-if="!isOwnProfile"
                 @click="toggleFollow"
                 :class="[
-                  'flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-white transition-all',
+                  'flex items-center space-x-2 px-4 py-2 rounded-lg font-medium text-white transition-all ml-6',
                   isFollowing
                     ? 'bg-red-500 hover:bg-red-600 shadow-lg'
-                    : 'bg-blue-500 hover:bg-blue-600 shadow-lg'
+                    : 'bg-gradient-to-br from-blue-500 to-purple-600 hover:bg-blue-600 shadow-lg'
                 ]"
               >
                 <svg v-if="!isFollowing" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -502,7 +502,9 @@ export default {
         this.loadUserStats(),
         this.checkFollowStatus()
       ]);
-      
+      if (this.user && socketService.socket) {
+      socketService.joinUserRoom(this.user._id);
+    }
       // تنظيف وإعادة إعداد المستمعين
       this.cleanupSocketListeners();
       this.setupSocketListeners();
@@ -557,42 +559,45 @@ export default {
         console.error('Error checking follow status:', error);
       }
     },
-    async toggleFollow() {
-      if (!this.user) {
-        this.$router.push('/login');
-        return;
-      }
+// في الـ methods في Vue component
+async toggleFollow() {
+  if (!this.user) {
+    this.$router.push('/login');
+    return;
+  }
 
-      try {
-        if (this.isFollowing) {
-          const response = await usersAPI.unfollow(this.profileUser._id);
-          this.isFollowing = false;
-          this.userStats.followersCount = response.data.data.followersCount;
-          
-          // إرسال حدث unfollow عبر Socket
-          if (socketService.socket) {
-            socketService.unfollowUser(this.profileUser._id, this.user._id);
-          }
-          
-          toastService.success(`Unfollowed ${this.profileUser.username}`);
-        } else {
-          const response = await usersAPI.follow(this.profileUser._id);
-          this.isFollowing = true;
-          this.userStats.followersCount = response.data.data.followersCount;
-          
-          // إرسال حدث follow عبر Socket
-          if (socketService.socket) {
-            socketService.followUser(this.profileUser._id, this.user._id);
-          }
-          
-          toastService.success(`Following ${this.profileUser.username}`);
-        }
-      } catch (error) {
-        console.error('Error toggling follow:', error);
-        const errorMessage = error.response?.data?.message || 'An error occurred';
-        toastService.error(errorMessage);
+  try {
+    if (this.isFollowing) {
+      const response = await usersAPI.unfollow(this.profileUser._id);
+      this.isFollowing = false;
+      // استخدام البيانات من الاستجابة بدلاً من الاعتماد على السوكيت فقط
+      this.userStats.followersCount = response.data.data.followersCount;
+      
+      // إرسال حدث unfollow عبر Socket
+      if (socketService.socket && socketService.getConnectionStatus()) {
+        socketService.unfollowUser(this.profileUser._id, this.user._id);
       }
-    },
+      
+      toastService.success(`Unfollowed ${this.profileUser.username}`);
+    } else {
+      const response = await usersAPI.follow(this.profileUser._id);
+      this.isFollowing = true;
+      // استخدام البيانات من الاستجابة بدلاً من الاعتماد على السوكيت فقط
+      this.userStats.followersCount = response.data.data.followersCount;
+      
+      // إرسال حدث follow عبر Socket
+      if (socketService.socket && socketService.getConnectionStatus()) {
+        socketService.followUser(this.profileUser._id, this.user._id);
+      }
+      
+      toastService.success(`Following ${this.profileUser.username}`);
+    }
+  } catch (error) {
+    console.error('Error toggling follow:', error);
+    const errorMessage = error.response?.data?.message || 'An error occurred';
+    toastService.error(errorMessage);
+  }
+},
     
     // إعداد مستمعي أحداث Socket.io
     setupSocketListeners() {
@@ -600,13 +605,18 @@ export default {
       window.addEventListener('socket-userFollowed', this.handleUserFollowed);
       window.addEventListener('socket-userUnfollowed', this.handleUserUnfollowed);
       window.addEventListener('socket-newFollower', this.handleNewFollower);
+      window.addEventListener('socket-followStatsUpdate', this.handleFollowStatsUpdate);
+
     },
     
     // تنظيف مستمعي الأحداث
     cleanupSocketListeners() {
       window.removeEventListener('socket-userFollowed', this.handleUserFollowed);
       window.removeEventListener('socket-userUnfollowed', this.handleUserUnfollowed);
-      window.removeEventListener('socket-newFollower', this.handleNewFollower);
+      window.removeEventListener('socket-newFollower', this.handleNewFollower);  
+      window.removeEventListener('socket-followStatsUpdate', this.handleFollowStatsUpdate);
+
+
     },
     
     // معالجة حدث المتابعة
@@ -653,6 +663,23 @@ export default {
         console.log('Real-time: You have a new follower');
       }
     },
+    // في الـ methods في Vue component
+handleFollowStatsUpdate(event) {
+  const data = event.detail;
+  
+  // إذا كانت الإحصائيات للمستخدم المعروض حالياً
+  if (data.userId === this.profileUser?._id) {
+    this.userStats.followersCount = data.followersCount;
+    this.userStats.followingCount = data.followingCount;
+    console.log('Real-time: Follow stats updated for profile user');
+  }
+  
+  // إذا كانت الإحصائيات للمستخدم الحالي (المتابِع)
+  if (data.userId === this.user?._id) {
+    // يمكنك تحديث إحصائيات المستخدم الحالي إذا كنت تعرضها
+    console.log('Real-time: Follow stats updated for current user');
+  }
+},
     
     getTabCount(tabId) {
       switch (tabId) {

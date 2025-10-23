@@ -1,85 +1,80 @@
 # 🚀 Social Blogging & Real-Time Platform
 
-منصة تواصل ومدونات تفاعلية تعمل بتقنيات **Vue 3 + Vite + Vuex + Vue Router + Socket.io + Axios**  
-تمكِّن المستخدمين من إنشاء منشورات، التفاعل معها (إعجاب، تعليق، عرض)، واستقبال التحديثات **لحظيًا** بدون إعادة تحميل الصفحة.
+An interactive **social blogging platform** built with **Vue 3, Vite, Vuex, Vue Router, Socket.io, and Axios**.  
+It allows users to create posts, interact through likes and comments, and receive **real-time updates** without reloading the page.
 
 ---
 
-## 📦 المتطلبات الأساسية
+## 📦 Prerequisites
 
-تأكد من تثبيت الأدوات التالية قبل البدء:
+Before getting started, make sure you have the following installed:
 
-- [Node.js](https://nodejs.org/) (الإصدار 18 أو أعلى)
-- [npm](https://www.npmjs.com/) أو [yarn](https://yarnpkg.com/)
-- خادم API (Express أو Nest.js) يعمل على `http://localhost:5000`
+- [Node.js](https://nodejs.org/) (v18 or higher)
+- [npm](https://www.npmjs.com/) or [yarn](https://yarnpkg.com/)
+- A backend API (Express or Nest.js) running at `http://localhost:5000`
 
 ---
 
-## ⚙️ خطوات التثبيت والتشغيل
+## ⚙️ Installation & Setup
 
-### 1️⃣ استنساخ المشروع
-
+### 1️⃣ Clone the repository
 ```bash
 git clone https://github.com/username/social-blogging-platform.git
 cd social-blogging-platform
 ```
 
-### 2️⃣ تثبيت الحزم
-
+### 2️⃣ Install dependencies
 ```bash
 npm install
-# أو
+# or
 yarn install
 ```
 
-### 3️⃣ تشغيل التطبيق أثناء التطوير
-
+### 3️⃣ Run the development server
 ```bash
 npm run dev
 ```
 
-ثم افتح المتصفح على:
+Then open your browser at:
 ```
 http://localhost:5173
 ```
 
-### 4️⃣ بناء نسخة الإنتاج
-
+### 4️⃣ Build for production
 ```bash
 npm run build
 ```
 
-### 5️⃣ تشغيل نسخة الإنتاج محلياً
-
+### 5️⃣ Preview production build locally
 ```bash
 npm run preview
 ```
 
 ---
 
-## 🧩 هيكل المشروع
+## 🧩 Project Structure
 
 ```
 src/
- ┣ assets/           ← ملفات CSS وصور الواجهة
- ┣ components/       ← المكونات القابلة لإعادة الاستخدام
- ┣ router/           ← نظام التوجيه (صفحات Vue)
- ┣ store/            ← إدارة الحالة باستخدام Vuex
+ ┣ assets/           ← CSS files and images
+ ┣ components/       ← Reusable Vue components
+ ┣ router/           ← Vue Router (pages and navigation)
+ ┣ store/            ← Vuex store (state management)
  ┣ services/
- ┃ ┣ api.js          ← إعداد Axios وواجهات REST API
- ┃ ┗ socket.js       ← خدمة الاتصال الفوري Socket.io
- ┣ App.vue           ← المكون الجذر للتطبيق
- ┗ main.js           ← ملف تهيئة وتشغيل التطبيق
+ ┃ ┣ api.js          ← Axios setup and REST API logic
+ ┃ ┗ socket.js       ← Socket.io real-time service
+ ┣ App.vue           ← Root Vue component
+ ┗ main.js           ← Application entry point
 ```
 
 ---
 
-## 🔌 تكامل الـ API (Axios)
+## 🔌 API Integration (Axios)
 
-تم إنشاء ملف الخدمة `src/services/api.js` لإدارة جميع الطلبات إلى الخادم.
+All backend communication is handled through the centralized file:  
+`src/services/api.js`
 
-### ✳️ إعداد Axios
-
+### ✳️ Axios Setup
 ```js
 import axios from 'axios'
 
@@ -91,10 +86,7 @@ const api = axios.create({
 })
 ```
 
-### 🔑 التحقق التلقائي من التوكن
-
-جميع الطلبات تمر عبر **interceptor** لإضافة التوكن:
-
+### 🔑 Automatic Token Handling
 ```js
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token')
@@ -103,8 +95,7 @@ api.interceptors.request.use((config) => {
 })
 ```
 
-وفي حالة انتهاء صلاحية التوكن:
-
+If the token expires:
 ```js
 api.interceptors.response.use(
   res => res,
@@ -120,18 +111,51 @@ api.interceptors.response.use(
 
 ---
 
-## 🧠 واجهات الـ API المتوفرة
+## 🧠 Available API Endpoints
 
-(يتم عرض الجداول بنفس المحتوى السابق)
+### 🔐 Authentication
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| `POST` | `/api/auth/register` | Register a new user |
+| `POST` | `/api/auth/login` | Login and return JWT token |
+| `POST` | `/api/auth/forgot-password` | Send password reset email |
+| `PUT` | `/api/auth/reset-password/:token` | Reset password using token |
+
+### 👤 Users
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| `GET` | `/api/users` | Get all users |
+| `GET` | `/api/users/:id` | Get a specific user by ID |
+| `POST` | `/api/users/follow/:id` | Follow another user |
+| `POST` | `/api/users/unfollow/:id` | Unfollow a user |
+
+### 📝 Posts
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| `GET` | `/api/posts` | Fetch all posts |
+| `GET` | `/api/posts/:id` | Fetch a single post |
+| `POST` | `/api/posts` | Create a new post |
+| `PUT` | `/api/posts/:id` | Edit an existing post |
+| `DELETE` | `/api/posts/:id` | Delete a post |
+
+### 💬 Comments
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| `GET` | `/api/comments/:postId` | Get comments for a post |
+| `POST` | `/api/comments/:postId` | Add a new comment |
+| `DELETE` | `/api/comments/:commentId` | Delete a comment |
+
+### ❤️ Reactions
+| Method | Endpoint | Description |
+|--------|-----------|-------------|
+| `POST` | `/api/posts/like/:id` | Like a post |
+| `POST` | `/api/posts/unlike/:id` | Remove like from a post |
 
 ---
 
-## ⚡ التكامل الفوري (Socket.io)
+## ⚡ Real-Time Integration (Socket.io)
 
-### 🔧 إعداد Socket.io في الخادم (Backend)
-
-داخل مجلد الخادم `server/`، أضف الكود التالي:
-
+### 🔧 Backend Setup Example
 ```js
 import express from 'express'
 import http from 'http'
@@ -159,21 +183,10 @@ io.on('connection', (socket) => {
   socket.on('joinPost', (postId) => socket.join(postId))
   socket.on('leavePost', (postId) => socket.leave(postId))
 
-  socket.on('likePost', (data) => {
-    io.emit('postLiked', data)
-  })
-
-  socket.on('unlikePost', (data) => {
-    io.emit('postUnliked', data)
-  })
-
-  socket.on('addComment', (data) => {
-    io.emit('commentAdded', data)
-  })
-
-  socket.on('deleteComment', (data) => {
-    io.emit('commentDeleted', data)
-  })
+  socket.on('likePost', (data) => io.emit('postLiked', data))
+  socket.on('unlikePost', (data) => io.emit('postUnliked', data))
+  socket.on('addComment', (data) => io.emit('commentAdded', data))
+  socket.on('deleteComment', (data) => io.emit('commentDeleted', data))
 
   socket.on('disconnect', () => {
     console.log('❌ Client disconnected:', socket.id)
@@ -185,20 +198,42 @@ server.listen(5000, () => console.log('🚀 Server running on port 5000'))
 
 ---
 
-## 🔔 الميزات الأساسية
+## 🔔 Main Features
 
-- 🔐 تسجيل دخول وتسجيل مستخدم جديد  
-- 📝 إنشاء، تعديل، حذف المنشورات  
-- 💬 نظام تعليقات فوري  
-- ❤️ تفاعلات إعجاب لمنشورات وتعليقات  
-- 👁️ تتبع المشاهدات الفورية  
-- ⚡ تحديثات لحظية باستخدام Socket.io  
-- 🌙 واجهة احترافية تدعم الوضع الداكن والفاتح  
-- 📱 تصميم متجاوب بالكامل  
+- 🔐 User Authentication (Register / Login / JWT)
+- 📝 Create, edit, and delete posts
+- 💬 Real-time comment system
+- ❤️ Likes and reactions for posts and comments
+- 👁️ Live view tracking for posts
+- ⚡ Instant updates using Socket.io
+- 🌙 Modern UI supporting both Light & Dark modes
+- 📱 Fully responsive design
 
 ---
 
-## 📄 الترخيص
+## 🧰 Technologies Used
 
-هذا المشروع مفتوح المصدر لأغراض تعليمية وبحثية.  
-© 2025 – Developed with ❤️ by **Eng : MARYA **
+| Category | Tools / Libraries |
+|-----------|------------------|
+| Frontend | Vue 3, Vite, Vue Router, Vuex |
+| Real-time | Socket.io |
+| API Requests | Axios |
+| Backend | Express.js |
+| Database | MongoDB / Mongoose |
+| Styling | Tailwind CSS |
+| Authentication | JWT (JSON Web Token) |
+
+---
+
+## 🧑‍💻 Author
+
+**Eng. Marya**  
+Developed with ❤️ in 2025  
+> Educational & open-source project for learning purposes.
+
+---
+
+## 📄 License
+
+This project is open source and licensed under the **MIT License**.  
+You are free to use, modify, and distribute it for educational or personal projects.
