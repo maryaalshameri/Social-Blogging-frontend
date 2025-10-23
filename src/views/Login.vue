@@ -292,7 +292,37 @@
         </div>
       </div>
     </div>
+    
   </div>
+  <footer class="relative bg-gradient-to-b from-transparent to-gray-400 dark:to-gray-800/50 border-t border-gray-200/50 dark:border-gray-700/50 py-12 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center">
+          <div class="flex items-center justify-center space-x-3 mb-6">
+            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+              </svg>
+            </div>
+            <span class="text-2xl font-black bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              MaryBlog
+            </span>
+          </div>
+          <p class="text-gray-600 dark:text-gray-200 mb-6 max-w-md mx-auto">
+            Where stories come to life. Join our community of writers and readers sharing inspiring content every day.
+          </p>
+          <div class="flex items-center justify-center space-x-6 text-gray-500 dark:text-gray-400">
+            <!-- <span>&copy; 2025 MaryBlog. All rights reserved.</span> -->
+              <p class="text-gray-500">
+            © 2025 MaryBlog. All rights reserved
+            <span class="bg-gradient-to-r from-gray-900 via-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-white dark:via-blue-400 dark:to-purple-400 animate-gradient"> Made with </span>
+             ❤️ 
+              <span class="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent dark:from-purple-400 dark:via-pink-400 dark:to-red-400 animate-gradient-delayed">
+               for you all </span>
+          </p>
+          </div>
+        </div>
+      </div>
+    </footer>
 </template>
 
 <script>

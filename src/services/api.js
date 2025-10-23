@@ -44,8 +44,9 @@ export const authAPI = {
   updateProfile: (userData) => api.put('/auth/profile', userData),
   verifyEmail: (token) => api.post('/auth/verify-email', { token }),
   resendVerification: (email) => api.post('/auth/resend-verification', { email }),
-   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
+  forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
   resetPassword: (token, newPassword) => api.post('/auth/reset-password', { token, newPassword })
+
 }
 
 export const postsAPI = {

@@ -383,7 +383,7 @@
       </div>
     </section>
 
-     <footer class="relative bg-gradient-to-b from-transparent to-gray-50 dark:to-gray-800/50 border-t border-gray-200/50 dark:border-gray-700/50 py-12 px-4 sm:px-6 lg:px-8">
+     <footer class="relative bg-gradient-to-b from-transparent to-gray-400 dark:to-gray-800/50 border-t border-gray-200/50 dark:border-gray-700/50 py-12 px-4 sm:px-6 lg:px-8">
       <div class="max-w-7xl mx-auto">
         <div class="text-center">
           <div class="flex items-center justify-center space-x-3 mb-6">
@@ -396,14 +396,17 @@
               MaryBlog
             </span>
           </div>
-          <p class="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+          <p class="text-gray-600 dark:text-gray-200 mb-6 max-w-md mx-auto">
             Where stories come to life. Join our community of writers and readers sharing inspiring content every day.
           </p>
           <div class="flex items-center justify-center space-x-6 text-gray-500 dark:text-gray-400">
             <!-- <span>&copy; 2025 MaryBlog. All rights reserved.</span> -->
-              <p class="text-gray-400">
+              <p class="text-gray-500">
             © 2025 MaryBlog. All rights reserved
-            <span class="text-purple-400"> Made with ❤️ for you all </span>
+            <span class="bg-gradient-to-r from-gray-900 via-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-white dark:via-blue-400 dark:to-purple-400 animate-gradient"> Made with </span>
+             ❤️ 
+              <span class="bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 bg-clip-text text-transparent dark:from-purple-400 dark:via-pink-400 dark:to-red-400 animate-gradient-delayed">
+               for you all </span>
           </p>
           </div>
         </div>

@@ -165,7 +165,8 @@ class SocketService {
       console.log('Socket: Follow stats update received', data);
       this.emitGlobalEvent('socket-followStatsUpdate', data);
     });
-    
+
+
   }
 
   // دوال لإرسال الأحداث

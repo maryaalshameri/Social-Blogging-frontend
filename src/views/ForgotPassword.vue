@@ -405,7 +405,23 @@
                 </svg>
               </span>
             </button>
+         
           </div>
+           <!-- زر إعادة الإرسال -->
+            <div class="text-center pt-2">
+              <button
+                type="button"
+                @click="resendResetCode"
+                :disabled="loading"
+                :class="[
+                  'text-sm font-medium transition-colors underline',
+                  darkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-500',
+                  loading ? 'opacity-50 cursor-not-allowed' : ''
+                ]"
+              >
+                لم تستلم الكود؟ إعادة الإرسال
+              </button>
+            </div>
         </form>
       </div>
     </div>
@@ -475,25 +491,24 @@ export default {
         req.met = req.check(this.newPassword)
       })
     },
-    async sendResetLink() {
+async sendResetLink() {
   this.loading = true
   this.error = ''
   this.success = ''
   this.errors = {}
 
   try {
-    // التعديل هنا: إرسال البيانات ككائن يحتوي على حقل email
-    const response = await authAPI.forgotPassword({ email: this.email })
+    // التعديل هنا: إرسال البريد الإلكتروني مباشرة
+    const response = await authAPI.forgotPassword(this.email)
     
     if (response.data.success) {
-      this.success = 'تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني. يرجى التحقق من بريدك.'
+      this.success = response.data.message || 'تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني. يرجى التحقق من بريدك.'
       this.showResetForm = true
       ToastService.success('تم إرسال رابط إعادة التعيين بنجاح')
     }
   } catch (error) {
     console.log('Error details:', error.response?.data)
     
-    // معالجة الأخطاء المختلفة
     if (error.response?.data?.errors) {
       this.errors = this.formatErrors(error.response.data.errors)
       this.error = Object.values(this.errors)[0] || 'حدث خطأ في التحقق من البيانات'
@@ -508,41 +523,70 @@ export default {
     this.loading = false
   }
 },
+async resendResetCode() {
+  this.loading = true
+  this.error = ''
+  
+  try {
+    const response = await authAPI.forgotPassword(this.email)
+    
+    if (response.data.success) {
+      this.success = 'تم إعادة إرسال كود التحقق إلى بريدك الإلكتروني'
+      ToastService.success('تم إعادة إرسال الكود بنجاح')
+    }
+  } catch (error) {
+    this.error = error.response?.data?.message || 'حدث خطأ أثناء إعادة إرسال الكود'
+    ToastService.error(this.error)
+  } finally {
+    this.loading = false
+  }
+},
    
     async resetPassword() {
-      if (this.newPassword !== this.confirmPassword) {
-        this.error = 'Passwords do not match'
-        ToastService.error(this.error)
-        return
-      }
+  if (this.newPassword !== this.confirmPassword) {
+    this.error = 'Passwords do not match'
+    ToastService.error(this.error)
+    return
+  }
 
-      this.loading = true
-      this.error = ''
-      this.success = ''
-      this.errors = {}
+  this.loading = true
+  this.error = ''
+  this.success = ''
+  this.errors = {}
 
-      try {
-        const response = await authAPI.resetPassword(this.token, this.newPassword)
-        
-        if (response.data.success) {
-          this.success = 'Password reset successfully! Redirecting to login page...'
-          ToastService.success('Password reset successfully')
-          
-          setTimeout(() => {
-            this.$router.push('/login')
-          }, 3000)
-        }
-      } catch (error) {
-        if (error.response?.data?.errors) {
-          this.errors = this.formatErrors(error.response.data.errors)
-        } else {
-          this.error = error.response?.data?.message || 'An error occurred while resetting password'
-        }
-        ToastService.error(this.error)
-      } finally {
-        this.loading = false
-      }
-    },
+  try {
+    console.log('Sending reset request with:', {
+      token: this.token,
+      email: this.email,
+      newPasswordLength: this.newPassword.length
+    })
+
+    const response = await authAPI.resetPassword(this.token, this.newPassword)
+    
+    console.log('Reset response:', response.data)
+    
+    if (response.data.success) {
+      this.success = 'Password reset successfully! Redirecting to login page...'
+      ToastService.success('Password reset successfully')
+      
+      setTimeout(() => {
+        this.$router.push('/login')
+      }, 3000)
+    }
+  } catch (error) {
+    console.log('Reset error:', error.response?.data)
+    
+    if (error.response?.data?.errors) {
+      this.errors = this.formatErrors(error.response.data.errors)
+      this.error = Object.values(this.errors)[0] || 'An error occurred'
+    } else {
+      this.error = error.response?.data?.message || 'An error occurred while resetting password'
+    }
+    ToastService.error(this.error)
+  } finally {
+    this.loading = false
+  }
+},
 
     formatErrors(errors) {
       const formatted = {}
